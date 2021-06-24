@@ -1,0 +1,189 @@
+﻿@using GetInTouch.Logic.ViewModels.Post
+
+@using Microsoft.AspNetCore.Identity
+@inject SignInManager<IdentityUser> SignInManager
+@inject UserManager<IdentityUser> UserManager
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - GetInTouch</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" />
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
+<body>
+    <header>
+        <div class="custom-nav-bar">
+            <div>
+                @if (SignInManager.IsSignedIn(User))
+                {
+                    <form class="form-inline" asp-controller="" asp-action="">
+                        <input name="filter" style="width: 15vw;" class="form-control" type="search" placeholder="Search for people..." aria-label="Search">
+                        <button type="submit" class="btn ml-1" style="cursor: pointer;">
+                            <i class="fa fa-search" style="font-size:24px; color: white;"></i>
+                        </button>
+                    </form>
+                }
+            </div>
+            <div class="d-flex ml-auto">
+                @if (SignInManager.IsSignedIn(User))
+                {
+                    <div class="dropdown show">
+                        <a class="d-flex navbar-user-drop-down-actions" id="dropdownMenuLink" data-toggle="dropdown">
+                            <div id="navbar-user-fullname" class="mr-2 d-flex align-items-center"></div>
+                            <div class="mr-2">
+                                <img src="~/Icons/demo.jpg" class="left-side-item-image"/>
+                            </div>
+                        </a>
+
+                        <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                            <a class="dropdown-item cursor-pointer custom-dropdown-item"
+                               asp-controller="User" asp-action="MyProfile">
+                                My profile
+                            </a>
+                            <a class="dropdown-item cursor-pointer custom-dropdown-item">Settings</a>
+                            <a class="dropdown-item cursor-pointer custom-dropdown-item"
+                               asp-controller="User" asp-action="Logout">
+                                Log out
+                            </a>
+                        </div>
+                    </div>
+                    <div class="icon-container mr-2" data-toggle="modal" data-target="#addPostModal">
+                        <i class="fa fa-plus" style="font-size: 18px;"></i>
+                    </div>
+                    <div id="notifications"
+                         class="icon-container"
+                         data-toggle="modal"
+                         data-target="#notificationsModal"
+                         onclick="closeNotifications()">
+                        <i class="fa fa-bell" style="font-size: 16px;"></i>
+                        <span class="notification-number" id="notifications-number"></span>
+                    </div>
+                }
+                else
+                {
+                    <div class="d-flex">
+                        <div>
+                            <a class="custom-nav-link mr-3" asp-area="Identity" asp-page="/Account/Login">Login</a>
+                        </div>
+                        <div>
+                            <a class="custom-nav-link" asp-area="Identity" asp-page="/Account/Register">Register</a>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </header>
+    <div>
+        <main role="main">
+            @RenderBody()
+        </main>
+
+        <div class="modal fade" id="addPostModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLongTitle">Add post</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <form asp-controller="Post" asp-action="Add" enctype="multipart/form-data">
+                        <div class="modal-body" id="addPostModalBody">
+                            <partial name="~/Views/Post/_Add.cshtml" model="new AddPostViewModel()" />
+                        </div>
+                        <div class="modal-footer">
+                            <button type="submit" class="btn custom-button">Save</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="notificationsModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title font-weight-bold" id="exampleModalLongTitle">Notifications</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body" id="notificationsModalBody"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script>
+        (function () {
+            $.ajax({
+                url: '/User/GetUserInfo',
+                method: 'get',
+                success: function (data) {
+                    document.getElementById("navbar-user-fullname").innerText = data.fullName;
+
+                    if (data.numberOfUnseenNotifications > 0) {
+                        document.getElementById("notifications-number").innerText = data.numberOfUnseenNotifications;
+                    }
+                    else {
+                        document.getElementById("notifications-number").style.display = "none";
+                    }
+                }
+            });
+        })();
+
+        function closeNotifications() {
+            document.getElementById("notifications-number").style.display = "none";
+
+            $.ajax({
+                url: '/Notification/CloseOpenNotifications',
+                method: 'post'
+            })
+        }
+
+        document.getElementById('files').onchange = function () {
+            var src = URL.createObjectURL(this.files[0]);
+            document.getElementById("addPostModalBody").style.height = "75vh";
+            document.getElementById('image').src = src;
+        };
+
+        document.getElementById("notifications").addEventListener("click", function () {
+            $.ajax({
+                url: '/Notification/Index',
+                success: function (view) {
+                    document.getElementById("notificationsModalBody").innerHTML = view;
+                }
+            });
+        });
+
+        function acceptFriendship(notificationId) {
+            document.getElementById("accept-notification-" + notificationId).style.display = "none";
+            document.getElementById("reject-notification-" + notificationId).style.display = "none";
+
+            $.ajax({
+                url: '/User/AcceptFriendship?notificationId=' + notificationId,
+                method: 'post',
+            });
+        }
+
+        function rejectFriendship(notificationId) {
+            document.getElementById("accept-notification-" + notificationId).style.display = "none";
+            document.getElementById("reject-notification-" + notificationId).style.display = "none";
+
+            $.ajax({
+                url: '/User/RejectFriendship?notificationId=' + notificationId,
+                method: 'post',
+            });
+        }
+    </script>
+    @RenderSection("Scripts", required: false)
+</body>
+</html>

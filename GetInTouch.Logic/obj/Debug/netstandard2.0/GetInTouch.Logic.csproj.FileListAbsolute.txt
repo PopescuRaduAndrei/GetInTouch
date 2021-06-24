@@ -1,0 +1,14 @@
+D:\Licenta\FB\GetInTouch\GetInTouch\GetInTouch.Logic\bin\Debug\netstandard2.0\GetInTouch.Logic.deps.json
+D:\Licenta\FB\GetInTouch\GetInTouch\GetInTouch.Logic\bin\Debug\netstandard2.0\GetInTouch.Logic.dll
+D:\Licenta\FB\GetInTouch\GetInTouch\GetInTouch.Logic\bin\Debug\netstandard2.0\GetInTouch.Logic.pdb
+D:\Licenta\FB\GetInTouch\GetInTouch\GetInTouch.Logic\bin\Debug\netstandard2.0\GetInTouch.DataAccess.dll
+D:\Licenta\FB\GetInTouch\GetInTouch\GetInTouch.Logic\bin\Debug\netstandard2.0\GetInTouch.Model.dll
+D:\Licenta\FB\GetInTouch\GetInTouch\GetInTouch.Logic\bin\Debug\netstandard2.0\GetInTouch.DataAccess.pdb
+D:\Licenta\FB\GetInTouch\GetInTouch\GetInTouch.Logic\bin\Debug\netstandard2.0\GetInTouch.Model.pdb
+D:\Licenta\FB\GetInTouch\GetInTouch\GetInTouch.Logic\obj\Debug\netstandard2.0\GetInTouch.Logic.csprojAssemblyReference.cache
+D:\Licenta\FB\GetInTouch\GetInTouch\GetInTouch.Logic\obj\Debug\netstandard2.0\GetInTouch.Logic.AssemblyInfoInputs.cache
+D:\Licenta\FB\GetInTouch\GetInTouch\GetInTouch.Logic\obj\Debug\netstandard2.0\GetInTouch.Logic.AssemblyInfo.cs
+D:\Licenta\FB\GetInTouch\GetInTouch\GetInTouch.Logic\obj\Debug\netstandard2.0\GetInTouch.Logic.csproj.CoreCompileInputs.cache
+D:\Licenta\FB\GetInTouch\GetInTouch\GetInTouch.Logic\obj\Debug\netstandard2.0\GetInTouch.Logic.csproj.CopyComplete
+D:\Licenta\FB\GetInTouch\GetInTouch\GetInTouch.Logic\obj\Debug\netstandard2.0\GetInTouch.Logic.dll
+D:\Licenta\FB\GetInTouch\GetInTouch\GetInTouch.Logic\obj\Debug\netstandard2.0\GetInTouch.Logic.pdb

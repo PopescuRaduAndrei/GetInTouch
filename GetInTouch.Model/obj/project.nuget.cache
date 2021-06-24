@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "dgSpecHash": "itiR3VwlIHHMl6Sz981nWv5FXhBXUE+kPIK2ZiW+kABzg9WnJKvnvGh6cY7trvSk61Hjt0Qr4pj69hihx3vbNw==",
+  "success": true,
+  "projectFilePath": "D:\\Licenta\\FB\\GetInTouch\\GetInTouch\\GetInTouch.Model\\GetInTouch.Model.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\Andrei\\.nuget\\packages\\microsoft.netcore.platforms\\1.1.0\\microsoft.netcore.platforms.1.1.0.nupkg.sha512",
+    "C:\\Users\\Andrei\\.nuget\\packages\\netstandard.library\\2.0.3\\netstandard.library.2.0.3.nupkg.sha512"
+  ],
+  "logs": []
+}

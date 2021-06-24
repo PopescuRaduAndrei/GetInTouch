@@ -1,0 +1,75 @@
+﻿@model GetInTouch.Logic.ViewModels.Notifications.NotificationsViewModel
+@using GetInTouch.Model
+
+<div style="width: 30vw;">
+    @foreach (var notification in Model.Notifications)
+    {
+        var userId = notification.SenderId ?? notification.ReceiverId ?? Guid.Empty;
+        var image = "";
+        if (notification.Sender != null && notification.SenderId == Model.ActiveUserId)
+        {
+            image = notification.Receiver?.ProfileImage;
+        }
+        else if (notification.Receiver != null && notification.ReceiverId == Model.ActiveUserId)
+        {
+            image = notification.Sender?.ProfileImage;
+        }
+
+    <div class="d-flex flex-column mb-3">
+        @if (notification.Type == NotificationTypes.Friendship)
+        {
+            <a class="initial-styles-anchor" asp-controller="User" asp-action="ProfilePage" asp-route-userId="@userId">
+                <div class="d-flex notification-body p-2">
+                    @if (String.IsNullOrEmpty(image))
+                    {
+                        <img src="~/Images/default.png" class="card-informations-image" />
+                    }
+                    else
+                    {
+                        <img src="~/Images/@image" class="card-informations-image" />
+                    }
+                    <div class="ml-2">
+                        <div>@notification.Message</div>
+                        <div class="notification-time-sent">@notification.CreateOnString</div>
+                    </div>
+                </div>
+            </a>
+
+            if (!notification.Completed)
+            {
+                <div class="d-flex ml-5 pl-3 mt-2">
+                    <button id="accept-notification-@notification.Id"
+                            class="btn mr-3 custom-button"
+                            onclick="acceptFriendship('@notification.Id')">
+                        Accept
+                    </button>
+                    <button class="btn custom-button"
+                            id="reject-notification-@notification.Id"
+                            onclick="rejectFriendship('@notification.Id')">
+                        Reject
+                    </button>
+                </div>
+            }
+        }
+        else if (notification.Type == NotificationTypes.Appreciation)
+        {
+            <a class="initial-styles-anchor" asp-controller="User" asp-action="ProfilePage" asp-route-userId="@userId">
+                <div class="d-flex notification-body p-2">
+                    @if (notification.Sender == null || notification.Sender.ProfileImage == null)
+                    {
+                        <img src="~/Images/default.png" class="card-informations-image" />
+                    }
+                    else
+                    {
+                        <img src="~/Images/@notification.Sender.ProfileImage" class="card-informations-image" />
+                    }
+                    <div class="ml-2">
+                        <div>@notification.Message</div>
+                        <div class="notification-time-sent">@notification.CreateOnString</div>
+                    </div>
+                </div>
+            </a>
+        }
+    </div>
+    }
+</div>

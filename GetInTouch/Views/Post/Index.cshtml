@@ -1,0 +1,388 @@
+﻿@model GetInTouch.Logic.ViewModels.Post.PostsViewModel
+@using GetInTouch.Model 
+
+<div class="grid-container">
+
+    <partial name="_Posts" model="@Model" />
+
+    <div class="right-side">
+
+        <div class="hidden"></div>
+
+        <div class="friends-list">
+
+            <div>Contacts</div>
+
+            <div class="mt-2 mb-2 horizontal-line"></div>
+
+            @foreach (var friendship in Model.Friendships)
+            {
+                <div class="friend-container p-2">
+                    @{ var userId = Model.ActiveUser.Id != friendship.ReceiverId ? friendship.ReceiverId : friendship.SenderId; }
+                    <a class="initial-styles-anchor" asp-controller="User" asp-action="ProfilePage" asp-route-userId="@userId">
+                        <img src="~/Icons/demo.jpg" class="left-side-item-image mr-2" />
+
+                        @if (Model.ActiveUser.Id == friendship.ReceiverId)
+                        {
+                            <span class="initial-styles-anchor mr-1">@friendship.Sender.FirstName</span>
+                            <span class="initial-styles-anchor">@friendship.Sender.LastName</span>
+                        }
+                        else if (Model.ActiveUser.Id == friendship.SenderId)
+                        {
+                            <span class="initial-styles-anchor mr-1">@friendship.Receiver.FirstName</span>
+                            <span class="initial-styles-anchor">@friendship.Receiver.LastName</span>
+                        }
+                    </a>
+                </div>
+            }
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+    (function () {
+        setColorOnLoadPosts();
+    })();
+
+    @foreach (var item in Model.Posts)
+    {
+        @: addComment("@item.Post.Id");
+    }
+
+    function addComment(postId) {
+        var commentInput = document.getElementById("add-comment-" + postId);
+
+        commentInput.addEventListener("keyup", function (event) {
+            if (event.keyCode == 13) {
+                var commentMessage = commentInput.value;
+                $.ajax({
+                    method: 'post',
+                    url: '/Post/AddComment?postId=' + postId + "&commentMessage=" + commentMessage,
+                    success: function (result) {
+                        if (result > 0) {
+                            CreateAndAttachComment(postId, commentMessage);
+                            document.getElementById("number-of-comments-" + postId).innerText = result;
+                        }
+                    }
+                });
+            }
+        });
+    }
+
+    function CreateAndAttachComment(postId, commentMessage) {
+        var userDiv = document.createElement("div");
+        userDiv.style.fontWeight = "600";
+        userDiv.innerText = "@Model.ActiveUser.FirstName" + " " + "@Model.ActiveUser.LastName";
+
+        var commentDiv = document.createElement("div");
+        commentDiv.innerText = commentMessage;
+
+        var commentInfoDiv = document.createElement("div");
+        commentInfoDiv.classList.add("p-2");
+        commentInfoDiv.classList.add("add-comment-container");
+        commentInfoDiv.appendChild(userDiv);
+        commentInfoDiv.appendChild(commentDiv);
+
+        var img = document.createElement("img");
+        img.style.borderRadius = "50%";
+        img.style.width = "2rem";
+        img.style.height = "2rem";
+        img.style.marginRight = "0.8rem";
+        img.setAttribute("src", "/Icons/demo.jpg");
+
+        var commentContainerDiv = document.createElement("div");
+        commentContainerDiv.classList.add("p-2");
+        commentContainerDiv.classList.add("d-flex");
+        commentContainerDiv.appendChild(img);
+        commentContainerDiv.appendChild(commentInfoDiv);
+
+        var commentsContainer = document.getElementById("sections-list-" + postId);
+        commentsContainer.insertBefore(commentContainerDiv, commentsContainer.childNodes[2]);
+
+        document.getElementById("add-comment-" + postId).value = "";
+    }
+
+    function setColorOnLoadPosts() {
+        @foreach (var item in Model.Posts)
+        {
+            @: var color = getReactionColor("@Html.Raw(item.AppreciationDetails.AppreciationButtonMessage)");
+            @: document.getElementById("likeButton-@item.Post.Id").style.color = color;
+        }
+    }
+
+    function showAllReactions(postId) {
+        document.getElementById("reactionBox-" + postId).style.display = "flex";
+    }
+
+    function hideAllReactions(postId) {
+        document.getElementById("reactionBox-" + postId).style.display = "none";
+    }
+
+    function PlaceReaction(postId, reaction, emoji) {
+        $.ajax({
+            method: 'post',
+            url: '/Post/AddAppreciation?PostId=' + postId + "&emoji=" + emoji,
+            success: function (data) {
+                updatePostInfo(data, postId);
+            }
+        });
+
+        document.getElementById("reactionBox").style.display = "none";
+    }
+
+    function updatePostInfo(data, postId) {
+        var likeButton = document.getElementById("likeButton-" + postId);
+        if (likeButton != null) {
+            likeButton.innerText = data.appreciationButtonMessage;
+
+            color = getReactionColor(data.appreciationButtonMessage);
+            likeButton.style.color = color;
+        }
+
+        var postAppreciations = document.getElementById("post-reactions-" + postId);
+        if (postAppreciations != null) {
+            postAppreciations.innerText = data.givenAppreciations;
+        }
+
+        var postAppreciationsNumber = document.getElementById("post-number-reactions-" + postId);
+        if (postAppreciationsNumber != null) {
+            postAppreciationsNumber.innerText = data.appreciationsNumber;
+        }
+
+    }
+
+    function getReactionColor(data) {
+        if (data == "❤️ Love" || data == "😡 Angry") {
+            return "red";
+        }
+
+        if (data == "Like") {
+            return "black";
+        }
+
+        return "#a1a318";
+    }
+
+    function ShowPostInformations(postId) {
+        $.ajax({
+            url: '/Post/GetPostReactionsOverview?postId=' + postId,
+            success: function (data) {
+                PopulatePostModal(data);
+            }
+        });
+    }
+
+    function PopulatePostModal(data) {
+        PopulateHeaderPostModal(data);
+        PrepareBodyPostModal();
+
+        var postModalBody = document.getElementById("reactionsModalBody");
+        for (let index = 0; index < data.postReactionInfoModels.length; index++) {
+            var row = CreateReactionModalRow(data.postReactionInfoModels[index]);
+            postModalBody.appendChild(row);
+        }
+    }
+
+    function PopulateHeaderPostModal(data) {
+        var likesContainer = document.getElementById("likes-container-modal");
+        if (data.numberOfLikes > 0) {
+            var likesNumberContainer = document.getElementById("number-likes-container-modal");
+            likesNumberContainer.innerText = data.numberOfLikes;
+        }
+        else {
+            likesContainer.style.display = "none";
+        }
+
+        var lovesContainer = document.getElementById("loves-container-modal");
+        if (data.numberOfLoves > 0) {
+            var lovesNumberContainer = document.getElementById("number-loves-container-modal");
+            lovesNumberContainer.innerText = data.numberOfLoves;
+        }
+        else {
+            lovesContainer .style.display = "none";
+        }
+
+        var hahaContainer = document.getElementById("haha-container-modal");
+        if (data.numberOfHaha > 0) {
+            hahaNumberContainer = document.getElementById("number-haha-container-modal");
+            hahaNumberContainer.innerText = data.numberOfHaha;
+        }
+        else {
+            hahaContainer.style.display = "none";
+        }
+
+        var sadContainer = document.getElementById("sad-container-modal");
+        if (data.numberOfSad > 0) {
+            var sadNumberContainer = document.getElementById("number-sad-container-modal");
+            sadNumberContainer.innerText = data.numberOfSad;
+        }
+        else {
+            sadContainer.style.display = "none";
+        }
+
+        var wowContainer = document.getElementById("wow-container-modal");
+        if (data.numberOfWow > 0) {
+            var wowNumberContainer = document.getElementById("number-wow-container-modal");
+            wowNumberContainer.innerText = data.numberOfWow;
+        }
+        else {
+            wowContainer.style.display = "none";
+        }
+
+        var angryContainer = document.getElementById("angry-container-modal");
+        if (data.numberOfAngry > 0) {
+            var angryNumberContainer = document.getElementById("number-angry-container-modal");
+            angryNumberContainer.innerText = data.numberOfAngry;
+        }
+        else {
+            angryContainer.style.display = "none";
+        }
+    }
+
+    function PrepareBodyPostModal() {
+        var content = document.getElementById("reactionsModalBody");
+        content.style.maxHeight = "40vh";
+        content.style.overflow = "auto";
+
+        for (let index = 0; index < content.childNodes.length; index++) {
+            content.removeChild(content.childNodes[index]);
+        }
+    }
+
+    function CreateReactionModalRow(user) {
+        var parrentDiv = document.createElement("div");
+        parrentDiv.className = "d-flex mb-2";
+
+        var userInfo = CreateUserInfo(user);
+        parrentDiv.appendChild(userInfo);
+
+        if (user.userId != "@Model.ActiveUser.Id") {
+            var friendsInfo = CreateFriendsInfo(user);
+            parrentDiv.appendChild(friendsInfo);
+        }
+
+        return parrentDiv;
+    }
+
+    function CreateUserInfo(user) {
+        var childDiv = document.createElement("div");
+        childDiv.className = "p-2 mr-auto";
+
+        var image = document.createElement("img");
+        image.src = "/Icons/" + user.image;
+        image.className = "left-side-item-image";
+        childDiv.appendChild(image);
+
+        var span = document.createElement("span");
+        span.textContent = user.fullName;
+        span.className = "ml-1";
+        childDiv.appendChild(span);
+
+        return childDiv;
+    }
+
+    function CreateFriendsInfo (user) {
+        var button = document.createElement("button");
+        button.classList.add("post-modal-user-button");
+
+        var contentButton = document.createElement("span");
+        var icon = document.createElement("i");
+        icon.style.color = "white";
+        icon.style.marginRight = "5px";
+
+        if (user.isFriend === true) {
+            contentButton.textContent = "Friends";
+
+            icon.classList.add("fa");
+            icon.classList.add("fa-check");
+        }
+        else {
+            button.addEventListener("click", function () {
+                $.ajax({
+                    method: 'post',
+                    url: '/Notification/CreateFriendshipNotification?receiverId=' + user.userId,
+                    success: function (result) {
+                        if (result == "true") {
+                            button.innerHTML = "<div>Invitation sent</div>";
+                            button.setAttribute("disabled", "disabled");
+                            button.style.background = "#054d2d";
+                            button.style.pointerEvents = "none";
+                        }
+                    }
+                });
+            });
+
+            contentButton.textContent = "Add friend";
+
+            icon.classList.add("fa");
+            icon.classList.add("fa-user-plus");
+        }
+
+        button.appendChild(icon);
+        button.appendChild(contentButton);
+
+        return button;
+    }
+
+    function OpenCommentsSection(postId) {
+        document.getElementById("section-comments-" + postId).style.display = "block";
+    }
+
+    function onClickRestrictViewingButton(postId) {
+        $.ajax({
+            url: '/Post/GetRestrictViewing?postId=' + postId,
+            success: function (view) {
+                document.getElementById("restrict-viewing-post-modal-body").innerHTML = view;
+            }
+        });
+    }
+
+    function setRestrictViewingType() {
+        let restrictTypeContainer = document.getElementById("restrict-viewing-type-container");
+
+        if (document.getElementById("restrict-viewing-everyone").checked === true) {
+            restrictTypeContainer.value = "@RestrictViewingType.Everyone";
+        }
+
+        if (document.getElementById("restrict-viewing-only-me").checked === true) {
+            restrictTypeContainer.value = "@RestrictViewingType.OnlyMe";
+        }
+
+        if (document.getElementById("restrict-viewing-only-close-friends").checked === true) {
+            restrictTypeContainer.value = "@RestrictViewingType.OnlyCloseFriends";
+        }
+    }
+
+    function sendPostIdToConfirmDeleteModal(postId) {
+        document.getElementById("delete-post-id-container").value = postId;
+    }
+
+    function onClickConfirmDeletePost() {
+        let postId = document.getElementById("delete-post-id-container").value;
+
+        $.ajax({
+            url: '/Post/DeletePost?postId=' + postId,
+            success: function () {
+                document.getElementById("post-" + postId).remove();
+            }
+        });
+    }
+
+    function onClickEditPost(postId) {
+        $.ajax({
+            url: '/Post/Edit?postId=' + postId,
+            method: 'get',
+            success: function (view) {
+                document.getElementById("edit-post-modal-body").innerHTML = view;
+
+                document.getElementById('edit-post-image').onchange = function () {
+                    var src = URL.createObjectURL(this.files[0]);
+                    document.getElementById("edit-post-modal").style.height = "75vh !important";
+                    document.getElementById('edit-post-image-preview').src = src;
+                };
+            }
+        });
+    }
+</script>

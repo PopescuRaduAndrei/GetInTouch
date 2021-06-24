@@ -1,0 +1,38 @@
+﻿@model GetInTouch.Logic.ViewModels.Friendship.FriendsViewModel
+
+@foreach (var friend in Model.Friends)
+{
+    <div id="friend-@friend.UserId" style="width: 30vw; display: flex; margin-right: 10vw; margin-bottom: 3vh; ">
+        <div style="display: flex; align-items: center;">
+            @if (String.IsNullOrEmpty(friend.ProfileImage))
+            {
+                <img src="~/Images/default.png" style="height: 45px; width: 40px;" />
+            }
+            else
+            {
+                <img src="~/Images/@friend.ProfileImage" style="height: 45px; width: 40px;" />
+            }
+            <div class="ml-3">
+                <a class="d-flex" asp-controller="User" asp-action="ProfilePage" asp-route-userId="@friend.UserId">
+                    <div>@friend.FullName</div>
+                </a>
+            </div>
+        </div>
+        <div class="ml-auto" style="display: flex; align-items: center; margin-right: 5px;">
+            @if (friend.ShouldDisplayAddFriendButton)
+            {
+                <a class="custom-button initial-styles-anchor" id="add-friend-button-@friend.UserId" onclick="addFriend('@friend.UserId')">
+                    <i class="fa fa-user-plus mr-1"></i>
+                    <span>Add friend</span>
+                </a>
+            }
+            else if (friend.ShouldDisplayUnfriendButton)
+            {
+                <a class="custom-button initial-styles-anchor" id="unfriend-button-@friend.UserId" onclick="unfriend('@friend.UserId')">
+                    <i class="fa fa-user mr-1"></i>
+                    <span>Unfriend</span>
+                </a>
+            }
+        </div>
+    </div>
+}

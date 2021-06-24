@@ -1,0 +1,48 @@
+﻿@model GetInTouch.Logic.ViewModels.Post.PostReactionsOverviewViewModel 
+
+<div class="modal fade" id="post-reaction-overview-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div style="display: flex;">
+                    <div class="mr-2 cursor-pointer" id="likes-container-modal">
+                        👍
+                        <span id="number-likes-container-modal" class="mr-1"></span>
+                    </div>
+
+                    <div class="mr-2 cursor-pointer" id="loves-container-modal">
+                        ❤️
+                        <span id="number-loves-container-modal" class="mr-1"></span>
+                    </div>
+
+                    <div class="mr-2 cursor-pointer" id="haha-container-modal">
+                        😂
+                        <span id="number-haha-container-modal" class="mr-1"></span>
+                    </div>
+
+                    <div class="mr-2 cursor-pointer" id="wow-container-modal">
+                        😮
+                        <span id="number-wow-container-modal" class="mr-1"></span>
+                    </div>
+
+                    <div class="mr-2 cursor-pointer" id="sad-container-modal">
+                        😢
+                        <span id="number-sad-container-modal" class="mr-1"></span>
+                    </div>
+
+                    <div class="mr-2 cursor-pointer" id="angry-container-modal">
+                        😡
+                        <span id="number-angry-container-modal" class="mr-1"></span>
+                    </div>
+                </div>
+
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-body" id="reactionsModalBody">
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,78 @@
+﻿@model GetInTouch.Logic.ViewModels.Friendship.FriendsViewModel
+
+@{
+    ViewData["Title"] = "Friends";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div style="padding-top: 4rem; padding-left: 10vw;">
+    <h2>Friends</h2>
+    <div class="d-flex mb-3">
+        <input id="filter-people" name="filter" style="width: 15vw;" class="form-control" type="search" placeholder="Search for people..." aria-label="Search">
+        <button type="button" onclick="filter()" class="btn ml-1 cursor-pointer">
+            <i class="fa fa-search search-friend-button"></i>
+        </button>
+    </div>
+
+    <div class="d-flex flex-wrap" id="people-container">
+        <partial name="_PeopleList" model="@Model" />
+    </div>
+</div>
+
+@section scripts{
+    <script>
+        function filter() {
+            let filterValue = document.getElementById("filter-people").value;
+
+            $.ajax({
+                url: "/User/FilterPeople?profileUserId=" + "@Model.ProfileUserId" + "&filter=" + filterValue,
+                success: function (view) {
+                    document.getElementById("people-container").innerHTML = view;
+                }
+            });
+        }
+
+        function addFriend(userId) {
+            let button = document.getElementById("add-friend-button-" + userId);
+            $.ajax({
+                method: 'post',
+                url: '/Notification/CreateFriendshipNotification?receiverId=' + userId,
+                success: function (result) {
+                    if (result == "true") {
+                        button.innerHTML = "<div>Invitation sent</div>";
+                        button.setAttribute("disabled", "disabled");
+                        button.style.background = "#054d2d";
+                        button.style.pointerEvents = "none";
+                    }
+                }
+            });
+        }
+
+        function unfriend(userId) {
+            let button = document.getElementById("unfriend-button-" + userId);
+            console.log(button);
+            $.ajax({
+                method: 'post',
+                url: '/User/Unfriend?profileUserId=' + userId,
+                success: function () {
+                    button.innerHTML = "";
+                    button.addEventListener("onclick", function () {
+                        addFriend(userId);
+                    });
+                    button.id = "add-friend-button-" + userId;
+
+                    let text = document.createElement("span");
+                    text.innerText = "Add friend";
+
+                    let icon = document.createElement("i");
+                    icon.classList.add("fa");
+                    icon.classList.add("fa-user-plus");
+                    icon.classList.add("mr-1");
+
+                    button.appendChild(icon);
+                    button.appendChild(text);
+                }
+            });
+        }
+    </script>
+}

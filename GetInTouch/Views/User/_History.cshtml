@@ -1,0 +1,48 @@
+﻿@model GetInTouch.Logic.ViewModels.History.HistoryViewModel
+@using GetInTouch.Model
+
+<div style="width: 30vw;">
+    @foreach (var history in Model.Histories)
+    {
+        <div class="d-flex flex-column mb-3">
+            @if (history.Type == HistoryActionTypes.AppreciatedPost || history.Type == HistoryActionTypes.CommentedOnPost)
+            {
+                <a class="initial-styles-anchor" asp-controller="User" asp-action="ProfilePage" asp-route-userId="@history.PostId">
+                    <div class="d-flex notification-body p-2">
+                        @if (String.IsNullOrEmpty(history.Post.Image))
+                        {
+                            <img src="~/Images/default.png" class="card-informations-image" />
+                        }
+                        else
+                        {
+                            <img src="~/Images/@history.Post.Image" class="card-informations-image" />
+                        }
+                        <div class="ml-2">
+                            <div>@history.Message</div>
+                            <div class="notification-time-sent">@history.StringCreatedOn</div>
+                        </div>
+                    </div>
+                </a>
+            }
+            else if (history.Type == HistoryActionTypes.VisitedProfile)
+            {
+                <a class="initial-styles-anchor" asp-controller="User" asp-action="ProfilePage" asp-route-userId="@history.UserProfileId">
+                    <div class="d-flex notification-body p-2">
+                        @if (String.IsNullOrEmpty(history.UserProfile.ProfileImage))
+                        {
+                            <img src="~/Images/default.png" class="card-informations-image" />
+                        }
+                        else
+                        {
+                            <img src="~/Images/@history.UserProfile.ProfileImage" class="card-informations-image" />
+                        }
+                        <div class="ml-2">
+                            <div>@history.Message</div>
+                            <div class="notification-time-sent">@history.StringCreatedOn</div>
+                        </div>
+                    </div>
+                </a>
+            }
+        </div>
+    }
+</div>

@@ -1,0 +1,14 @@
+﻿@model GetInTouch.Logic.ViewModels.Post.AddPostViewModel
+
+<div class="form-group form-group-dimension">
+    <label asp-for="Description"></label>
+    <textarea asp-for="Description" class="form-control" style="height: 150px;"></textarea>
+    <span asp-validation-for="Description" class="text-danger"></span>
+</div>
+
+<div>
+    <input asp-for="Image" accept="image/*" type='file' id="files" style="position: fixed;" />
+    <div>
+        <img id="image" src="#" alt="your image" height="350" width="450" />
+    </div>
+</div>

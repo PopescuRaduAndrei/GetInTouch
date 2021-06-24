@@ -1,0 +1,8 @@
+﻿@model GetInTouch.Logic.ViewModels.Notifications.NotificationsViewModel
+
+@foreach (var notification in Model.Notifications)
+{
+    <div class="mt-5 mb-5">
+        @notification.Message
+    </div>
+}

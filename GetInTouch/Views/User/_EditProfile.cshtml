@@ -1,0 +1,48 @@
+﻿@model GetInTouch.Logic.ViewModels.User.UserDetailsViewModel
+
+<input hidden asp-for="UserId" />
+
+<div id="edit-profile-step-one">
+    <div class="form-group" id="Container-Email">
+        <label>Where do you live?</label>
+        <input asp-for="LivesIn" class="form-control" />
+    </div>
+    <div class="form-group" id="Container-Email">
+        <label>Where are you from?</label>
+        <input asp-for="IsFrom" class="form-control" />
+    </div>
+    <div class="form-group" id="Container-Email">
+        <label asp-for="Gender"></label>
+        <input asp-for="Gender" class="form-control" />
+    </div>
+    <div class="form-group" id="Container-Email">
+        <label asp-for="Birthday"></label>
+        <input type="date" asp-for="Birthday" class="form-control" />
+    </div>
+</div>
+
+<div id="edit-profile-step-two" style="display: none;">
+    <div class="form-group" id="Container-Email">
+        <label>Where you work at?</label>
+        <input asp-for="WorksAt" class="form-control" />
+    </div>
+    <div class="form-group" id="Container-Email">
+        <label asp-for="Colleague"></label>
+        <input asp-for="Colleague" class="form-control" />
+    </div>
+    <div class="form-group" id="Container-Email">
+        <label>High school</label>
+        <input asp-for="HighSchool" class="form-control" />
+    </div>
+</div>
+
+<div id="edit-profile-step-three" style="display: none;">
+    <div class="form-group" id="Container-Email">
+        <label>Email address</label>
+        <input asp-for="Email" class="form-control" />
+    </div>
+    <div class="form-group" id="Container-Email">
+        <label>Phone number</label>
+        <input asp-for="PhoneNo" class="form-control" />
+    </div>
+</div>

@@ -1,0 +1,21 @@
+﻿@model GetInTouch.Logic.ViewModels.User.ChangeProfilePictureViewModel
+
+<input hidden asp-for="@Model.SelectedImage" id="selected-profile-image-container"/>
+
+<div class="d-flex flex-wrap">
+    @foreach (var image in Model.UserImages)
+    {
+    <div class="d-flex align-items-center cursor-pointer" onclick="selectProfileImage('@Model.StringImages', '@image')">
+        @if (Model.SelectedImage != image)
+        {
+            <i id="check-profile-@image" class="fa fa-check check-profile-image" style="display: none;"></i>
+            <img id="profile-image-@image" src="~/Images/@image" class="profile-image-user" />
+        }
+        else
+        {
+            <i id="check-profile-@image" class="fa fa-check check-profile-image" style="display: initial; z-index: 1;"></i>
+            <img id="profile-image-@image" src="~/Images/@image" class="profile-image-user" />
+        }
+    </div>
+    }
+</div>

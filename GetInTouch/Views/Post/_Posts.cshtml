@@ -1,0 +1,274 @@
+﻿@model GetInTouch.Logic.ViewModels.Post.PostsViewModel
+@using GetInTouch.Model
+@using GetInTouch.Logic.ViewModels.Post
+
+<div class="center-side">
+
+    <div class="hidden"></div>
+
+    @foreach (var item in Model.Posts)
+    {
+        <div class="card custom-card" id="post-@item.Post.Id">
+            <div class="d-flex">
+                <div class="card-informations">
+                    @if (String.IsNullOrEmpty(item.Post.User.ProfileImage))
+                    {
+                        <img src="~/Images/default.png" class="card-informations-image" />
+                    }
+                    else
+                    {
+                        <img src="~/Images/@item.Post.User.ProfileImage" class="card-informations-image" />
+                    }
+                    <div class="card-informations-post">
+                        <div class="card-informations-user link-underline">
+                            <a asp-controller="User" asp-action="ProfilePage" asp-route-userId="@item.Post.User.Id">
+                                <span>@item.Post.User.FirstName</span>
+                                <span>@item.Post.User.LastName</span>
+                            </a>
+                        </div>
+                        <div class="card-informations-post-date">@item.Post.UploadTime</div>
+                    </div>
+                </div>
+                <div class="ml-auto mt-3 mr-3">
+                    @if (item.ShouldDisplayActions)
+                    {
+                        <i class="fa fa-ellipsis-v post-dots-actions navbar-user-drop-down-actions"
+                           id="dropdownMenuLink" data-toggle="dropdown">
+                        </i>
+
+                        <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                            <a asp-controller="User" asp-action="RemoveFromCloseFriends"
+                               class="dropdown-item cursor-pointer custom-dropdown-item"
+                               data-target="#restrict-viewing-post-modal"
+                               data-toggle="modal"
+                               onclick="onClickRestrictViewingButton('@item.Post.Id')">
+                                <i class="fa fa-ban mr-1"></i>
+                                <span>Restrict viewing</span>
+                            </a>
+
+                            <a class="dropdown-item cursor-pointer custom-dropdown-item" 
+                               data-target="#edit-post-modal"
+                               data-toggle="modal"
+                               onclick="onClickEditPost('@item.Post.Id')">
+                                <i class="fa fa-edit mr-1"></i>
+                                <span>Edit post</span>
+                            </a>
+
+                            @if (item.Post.NotificationsOn)
+                            {
+                                <a asp-controller="Post" asp-action="TurnOffNotifications" asp-route-postId="@item.Post.Id"
+                                   class="dropdown-item cursor-pointer custom-dropdown-item">
+                                    <i class="fa fa-bell mr-1"></i>
+                                    <span>Turn off notifications</span>
+                                </a>
+                            }
+                            else
+                            {
+                                <a asp-controller="Post" asp-action="TurnOnNotifications" asp-route-postId="@item.Post.Id"
+                                   class="dropdown-item cursor-pointer custom-dropdown-item">
+                                    <i class="fa fa-bell mr-1"></i>
+                                    <span>Turn on notifications</span>
+                                </a>
+                            }
+
+                            <a asp-controller="Post" asp-action="RemovePost" asp-route-postId="@item.Post.Id"
+                               class="dropdown-item cursor-pointer custom-dropdown-item"
+                               data-toggle="modal"
+                               data-target="#delete-post-modal"
+                               onclick="sendPostIdToConfirmDeleteModal('@item.Post.Id')">
+                                <i class="fa fa-trash-o mr-1"></i>
+                                <span>Remove post</span>
+                            </a>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <div class="card-description">
+                @if (String.IsNullOrEmpty(item.Post.Description))
+                {
+                    <span>@String.Empty</span>
+                }
+                else
+                {
+                    <span>@item.Post.Description</span>
+                }
+                @*❤️😂👍😡😮😢
+                    A long black shadow slid across the pavement near their feet and the five Venusians, very much startled, looked overhead.
+                    They were barely in time to see the huge gray form of the carnivore before it vanished behind a sign atop a nearby building
+                    which bore the mystifying information "Pepsi-Cola."*@
+            </div>
+
+            <div>
+                <img class="card-content" src="~/Images/@item.Post.Image" />
+            </div>
+
+            <div class="card-reactions">
+                <div class="d-flex">
+                    <div class="p-2 mr-auto">
+                        <span class="mr-2">
+                            <a id="post-reactions-@item.Post.Id"
+                               class="cursor-pointer"
+                               data-toggle="modal"
+                               data-target="#post-reaction-overview-modal"
+                               onclick="ShowPostInformations('@item.Post.Id')">
+                                @item.AppreciationDetails.GivenAppreciations
+                            </a>
+                        </span>
+
+                        <span>
+                            <a id="post-number-reactions-@item.Post.Id"
+                               class="link-underline"
+                               data-toggle="modal"
+                               data-target="#post-reaction-overview-modal"
+                               onclick="ShowPostInformations('@item.Post.Id')">
+                                @item.AppreciationDetails.AppreciationsNumber
+                            </a>
+
+                            <partial name="~/Views/Post/_PostReactionsOverview.cshtml" model="new PostReactionsOverviewViewModel { PostId = item.Post.Id }" />
+                        </span>
+                    </div>
+
+                    <div class="p-2">
+                        <a class="link-underline" onclick="OpenCommentsSection('@item.Post.Id')">
+                            <span id="number-of-comments-@item.Post.Id">@item.Post.CommentsNumber</span>
+                            <span>comments</span>
+                        </a>
+                    </div>
+
+                    <div class="p-2">
+                        <a class="link-underline">
+                            @item.Post.SHaresNumber shares
+                        </a>
+                    </div>
+
+                </div>
+
+                <div class="m-2 horizontal-line"></div>
+            </div>
+
+            <div class="card-options">
+                <div class="d-flex justify-content-around mb-3">
+                    <div class="p-2 d-flex align-items-center" style="flex-direction: column;"
+                         onmouseover="showAllReactions('@item.Post.Id')"
+                         onmouseout="hideAllReactions('@item.Post.Id')">
+                        <a class="link-underline" id="likeButton-@item.Post.Id">
+                            @item.AppreciationDetails.AppreciationButtonMessage
+                        </a>
+
+                        <div id="reactionBox-@item.Post.Id" class="reaction-box">
+                            <a class="cursor-pointer" onclick='PlaceReaction("@item.Post.Id", "👍 Like", "@Emoji.Like")'>👍</a>
+                            <a class="cursor-pointer" onclick='PlaceReaction("@item.Post.Id", "❤️ Love", "@Emoji.Love")'>❤️</a>
+                            <a class="cursor-pointer" onclick='PlaceReaction("@item.Post.Id", "😂 Haha", "@Emoji.Haha")'>😂</a>
+                            <a class="cursor-pointer" onclick='PlaceReaction("@item.Post.Id", "😮 Wow", "@Emoji.Wow")'>😮</a>
+                            <a class="cursor-pointer" onclick='PlaceReaction("@item.Post.Id", "😢 Sad", "@Emoji.Sad")'>😢</a>
+                            <a class="cursor-pointer" onclick='PlaceReaction("@item.Post.Id", "😡 Angry", "@Emoji.Angry")'>😡</a>
+                        </div>
+                    </div>
+
+                    <div class="p-2">
+                        <a class="link-underline" onclick="OpenCommentsSection('@item.Post.Id')">Comment</a>
+                    </div>
+
+                    <div class="p-2">
+                        <a class="link-underline">Share</a>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="section-comments pl-2 pr-2" id="section-comments-@item.Post.Id">
+                <div class="mb-2 mr-2 ml-2 horizontal-line"></div>
+
+                <div id="sections-list-@item.Post.Id" style="display: flex; flex-direction: column;">
+                    <div class="p-2 d-flex">
+                        <img src="~/Icons/demo.jpg" class="left-side-item-image mr-2" />
+                        <div>
+                            <input id="add-comment-@item.Post.Id" class="p-2 add-comment-container" placeholder="Add a comment" />
+                        </div>
+                    </div>
+                    <div></div>
+
+                    @foreach (var comment in item.Post.Comnents)
+                    {
+                        <div class="p-2 d-flex">
+                            <img src="~/Icons/demo.jpg" class="left-side-item-image mr-2" />
+                            <div class="p-2 add-comment-container">
+                                <div style="font-weight: 600;">
+                                    <span>@comment.Sender.FirstName</span>
+                                    <span>@comment.Sender.LastName</span>
+                                </div>
+                                <div>@comment.Message</div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+        </div>
+    }
+</div>
+
+<div class="modal fade" id="restrict-viewing-post-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLongTitle">Restrict viewing</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form asp-controller="Post" asp-action="RestrictViewing">
+                <div class="modal-body" id="restrict-viewing-post-modal-body">
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn custom-button">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="edit-post-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLongTitle">Edit post</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form asp-controller="Post" asp-action="Edit" enctype="multipart/form-data">
+                <div class="modal-body" id="edit-post-modal-body">
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn custom-button">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="delete-post-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLongTitle">Delete post</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" id="delete-post-modal-body">
+                <input hidden id="delete-post-id-container" />
+                <div>
+                    <i class="fa fa-question-circle mr-1"></i>
+                    <span>Are you sure you want to delete this post?</span>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button data-dismiss="modal" class="btn custom-button mr-2">Cancel</button>
+                <button data-dismiss="modal" class="btn custom-button" onclick="onClickConfirmDeletePost()">Confirm</button>
+            </div>
+        </div>
+    </div>
+</div>
